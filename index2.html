@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Clone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #141414;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+            transition: background-color 0.3s;
+        }
+        
+        header.scrolled {
+            background-color: #141414;
+        }
+        
+        .logo {
+            color: #e50914;
+            font-size: 2rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #b3b3b3;
+        }
+        
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: transparent;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            padding: 5px 10px;
+        }
+        
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 0;
+            transition: width 0.3s;
+            padding: 0;
+        }
+        
+        .search-box:hover input, .search-box input:focus {
+            width: 150px;
+            padding: 0 5px;
+        }
+        
+        .search-box i {
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .profile-img {
+            width: 32px;
+            height: 32px;
+            background-color: #e50914;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 80vh;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1489599102910-59206b8ca314?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            padding: 0 50px;
+            margin-bottom: 20px;
+        }
+        
+        .hero-content {
+            max-width: 600px;
+        }
+        
+        .hero-badge {
+            background-color: rgba(109, 109, 110, 0.7);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+        
+        .hero-description {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: #e6e6e6;
+        }
+        
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+        
+        .btn-play {
+            background-color: #fff;
+            color: #000;
+        }
+        
+        .btn-info {
+            background-color: rgba(109, 109, 110, 0.7);
+            color: #fff;
+        }
+        
+        /* Content Rows */
+        .content-section {
+            padding: 20px 50px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+        
+        .content-row {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: none; /* Firefox */
+        }
+        
+        .content-row::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
+        }
+        
+        .content-card {
+            min-width: 250px;
+            height: 150px;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .content-card:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        
+        .content-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+            padding: 20px 10px 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .content-card:hover .card-overlay {
+            opacity: 1;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .card-info {
+            font-size: 0.8rem;
+            color: #b3b3b3;
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 50px;
+            margin-top: 50px;
+            color: #757575;
+        }
+        
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links a {
+            color: #757575;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .social-links a {
+            color: #757575;
+            font-size: 1.5rem;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                padding: 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero {
+                padding: 0 20px;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .content-section {
+                padding: 20px;
+            }
+            
+            .content-card {
+                min-width: 200px;
+                height: 120px;
+            }
+            
+            .footer-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Navigation -->
+    <header id="header">
+        <a href="#" class="logo">NETFLIX</a>
+        <div class="nav-links">
+            <a href="#" class="active">Home</a>
+            <a href="#">TV Shows</a>
+            <a href="#">Movies</a>
+            <a href="#">New & Popular</a>
+            <a href="#">My List</a>
+        </div>
+        <div class="nav-actions">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+            <div class="profile">
+                <div class="profile-img">
+                    <i class="fas fa-user"></i>
+                </div>
+                <i class="fas fa-caret-down"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-badge">New</span>
+            <h1 class="hero-title">Stranger Things</h1>
+            <p class="hero-description">When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.</p>
+            <div class="hero-actions">
+                <button class="btn btn-play"><i class="fas fa-play"></i> Play</button>
+                <button class="btn btn-info"><i class="fas fa-info-circle"></i> More Info</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Rows -->
+    <section class="content-section">
+        <h2 class="section-title">Popular on Netflix</h2>
+        <div class="content-row">
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 1">
+                <div class="card-overlay">
+                    <h3 class="card-title">The Dark Knight</h3>
+                    <div class="card-info">
+                        <span>98% Match</span>
+                        <span>2h 32m</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 2">
+                <div class="card-overlay">
+                    <h3 class="card-title">Inception</h3>
+                    <div class="card-info">
+                        <span>95% Match</span>
+                        <span>2h 28m</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 3">
+                <div class="card-overlay">
+                    <h3 class="card-title">La La Land</h3>
+                    <div class="card-info">
+                        <span>91% Match</span>
+                        <span>2h 8m</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 4">
+                <div class="card-overlay">
+                    <h3 class="card-title">1917</h3>
+                    <div class="card-info">
+                        <span>94% Match</span>
+                        <span>1h 59m</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1489599102910-59206b8ca314?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 5">
+                <div class="card-overlay">
+                    <h3 class="card-title">Interstellar</h3>
+                    <div class="card-info">
+                        <span>93% Match</span>
+                        <span>2h 49m</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <h2 class="section-title">Trending Now</h2>
+        <div class="content-row">
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 6">
+                <div class="card-overlay">
+                    <h3 class="card-title">Avengers: Endgame</h3>
+                    <div class="card-info">
+                        <span>97% Match</span>
+                        <span>3h 1m</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1560169897-fc0cdbdfa4d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 7">
+                <div class="card-overlay">
+                    <h3 class="card-title">The Witcher</h3>
+                    <div class="card-info">
+                        <span>96% Match</span>
+                        <span>1 Season</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1594909122845-11baa439b7bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 8">
+                <div class="card-overlay">
+                    <h3 class="card-title">The Queen's Gambit</h3>
+                    <div class="card-info">
+                        <span>98% Match</span>
+                        <span>1 Season</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1598890779130-9bb7d0e2de2b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 9">
+                <div class="card-overlay">
+                    <h3 class="card-title">The Crown</h3>
+                    <div class="card-info">
+                        <span>95% Match</span>
+                        <span>4 Seasons</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 10">
+                <div class="card-overlay">
+                    <h3 class="card-title">Stranger Things</h3>
+                    <div class="card-info">
+                        <span>99% Match</span>
+                        <span>3 Seasons</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <h2 class="section-title">Top 10 in Your Country</h2>
+        <div class="content-row">
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1543536448-d209d2d13a1c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 11">
+                <div class="card-overlay">
+                    <h3 class="card-title">Money Heist</h3>
+                    <div class="card-info">
+                        <span>97% Match</span>
+                        <span>5 Seasons</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1596727147705-61a532a659bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 12">
+                <div class="card-overlay">
+                    <h3 class="card-title">The Mandalorian</h3>
+                    <div class="card-info">
+                        <span>96% Match</span>
+                        <span>2 Seasons</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1572072393749-3ca9c8ea0831?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 13">
+                <div class="card-overlay">
+                    <h3 class="card-title">Westworld</h3>
+                    <div class="card-info">
+                        <span>93% Match</span>
+                        <span>4 Seasons</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1551029506-0807df4e2031?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 14">
+                <div class="card-overlay">
+                    <h3 class="card-title">Joker</h3>
+                    <div class="card-info">
+                        <span>92% Match</span>
+                        <span>2h 2m</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card">
+                <img src="https://images.unsplash.com/photo-1585951237318-9ea5e175b891?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Movie 15">
+                <div class="card-overlay">
+                    <h3 class="card-title">TENET</h3>
+                    <div class="card-info">
+                        <span>90% Match</span>
+                        <span>2h 30m</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+        <div class="footer-links">
+            <a href="#">Audio and Subtitles</a>
+            <a href="#">Audio Description</a>
+            <a href="#">Help Center</a>
+            <a href="#">Gift Cards</a>
+            <a href="#">Media Center</a>
+            <a href="#">Investor Relations</a>
+            <a href="#">Jobs</a>
+            <a href="#">Terms of Use</a>
+            <a href="#">Privacy</a>
+            <a href="#">Legal Notices</a>
+            <a href="#">Cookie Preferences</a>
+            <a href="#">Corporate Information</a>
+            <a href="#">Contact Us</a>
+        </div>
+        <p class="copyright">© 2023 Netflix Clone</p>
+    </footer>
+
+    <script>
+        // Header background change on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Search functionality
+        const searchBox = document.querySelector('.search-box');
+        const searchInput = document.querySelector('.search-box input');
+        
+        searchBox.addEventListener('click', function() {
+            searchInput.focus();
+        });
+
+        // Simulate content loading (in a real app, this would be API calls)
+        document.querySelectorAll('.content-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('.card-title').textContent;
+                alert(`This would play "${title}" in a real Netflix clone!`);
+            });
+        });
+
+        // Simulate button actions
+        document.querySelector('.btn-play').addEventListener('click', function() {
+            alert('Playing Stranger Things...');
+        });
+
+        document.querySelector('.btn-info').addEventListener('click', function() {
+            alert('Showing more info about Stranger Things...');
+        });
+    </script>
+</body>
+</html>
